@@ -11,6 +11,12 @@
 			scaleFactor="0.5"
 		>
 		
+			<views>
+				<SinglePlanningCalendarDayView id="idSinglePlanningCalendarDayView" key="day" title="{i18n>day}"/>
+				<SinglePlanningCalendarWeekView id="idSinglePlanningCalendarWeekView" key="week" title="{i18n>week}"/>
+				<SinglePlanningCalendarMonthView id="idSinglePlanningCalendarMonthView" key="month" title="{i18n>month}"/>
+			</views>
+
 		</SinglePlanningCalendar>
 
 	</VBox>
