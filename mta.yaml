@@ -8,6 +8,12 @@ modules:
   requires:
   - name: fpm-custom-page-therapists_html_repo_runtime
   - name: uaa_fpm-custom-page-therapists
+  - name: fpm-custom-page-therapists-destination-service
+    group: destinations
+    properties:
+      forwardAuthToken: false
+      name: ui5
+      url: https://ui5.sap.com
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -18,6 +24,23 @@ modules:
   - name: fpm-custom-page-therapists_html_repo_host
     parameters:
       content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - santostherapists.zip
+      name: santostherapists
+      target-path: resources/
+- name: santostherapists
+  type: html5
+  path: therapists
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
 resources:
 - name: fpm-custom-page-therapists_html_repo_runtime
   type: org.cloudfoundry.managed-service
@@ -36,3 +59,24 @@ resources:
   parameters:
     service: html5-apps-repo
     service-plan: app-host
+- name: fpm-custom-page-therapists-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: false
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: fpm-custom-page-therapists-destination-service
+    service-plan: lite
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
