@@ -150,6 +150,15 @@
           }
         }
       }
+    },
+    "extends": {
+      "extensions": {
+        "sap.ui.controllerExtensions": {
+          "sap.fe.templates.ObjectPage.ObjectPageController": {
+            "controllerName": "santos.therapists.ext.controller.ObjectPage"
+          }
+        }
+      }
     }
   },
   "sap.fe": {
