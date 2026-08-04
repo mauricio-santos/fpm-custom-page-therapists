@@ -1,3 +1,38 @@
 _schema-version: "3.2"
 ID: fpm-custom-page-therapists
 version: 0.0.1
+modules:
+- name: fpm-custom-page-therapists-approuter
+  type: approuter.nodejs
+  path: fpm-custom-page-therapists-approuter
+  requires:
+  - name: fpm-custom-page-therapists_html_repo_runtime
+  - name: uaa_fpm-custom-page-therapists
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+- name: fpm-custom-page-therapists_ui_deployer
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: fpm-custom-page-therapists_html_repo_host
+    parameters:
+      content-target: true
+resources:
+- name: fpm-custom-page-therapists_html_repo_runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
+- name: uaa_fpm-custom-page-therapists
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: fpm-custom-page-therapists-xsuaa-service
+    service-plan: application
+- name: fpm-custom-page-therapists_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-host
