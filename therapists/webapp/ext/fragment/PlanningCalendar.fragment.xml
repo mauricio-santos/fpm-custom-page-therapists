@@ -1,4 +1,4 @@
-<core:FragmentDefinition 
+<core:FragmentDefinition xmlns:unified="sap.ui.unified" 
 	xmlns="sap.m" 
 	xmlns:core="sap.ui.core" 
 	xmlns:macros="sap.fe.macros"
@@ -9,6 +9,7 @@
 			startHour="6"
 			endHour="18"
 			scaleFactor="0.5"
+			appointments="{toAppointments}"
 		>
 		
 			<views>
@@ -16,6 +17,18 @@
 				<SinglePlanningCalendarWeekView id="idSinglePlanningCalendarWeekView" key="week" title="{i18n>week}"/>
 				<SinglePlanningCalendarMonthView id="idSinglePlanningCalendarMonthView" key="month" title="{i18n>month}"/>
 			</views>
+
+			<appointments>
+			
+				<unified:CalendarAppointment id="idCalendarAppointment"
+					key="{block_ID}"
+					title="{title}"
+					description="{description}"
+					startDate="{startDate}"
+					endDate="{endDate2}"
+				/>
+
+			</appointments>
 
 		</SinglePlanningCalendar>
 
