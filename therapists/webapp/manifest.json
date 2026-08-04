@@ -131,7 +131,21 @@
           "options": {
             "settings": {
               "navigation": {},
-              "contextPath": "/TherapistsSet"
+              "contextPath": "/TherapistsSet",
+              "content": {
+                "body": {
+                  "sections": {
+                    "PlanningCalendar": {
+                      "template": "santos.therapists.ext.fragment.PlanningCalendar",
+                      "position": {
+                        "placement": "After",
+                        "anchor": "toAppointments::LineItem"
+                      },
+                      "title": "{i18n>planningCalendar}"
+                    }
+                  }
+                }
+              }
             }
           }
         }
