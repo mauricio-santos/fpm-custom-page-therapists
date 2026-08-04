@@ -59,7 +59,8 @@
       "libs": {
         "sap.m": {},
         "sap.ui.core": {},
-        "sap.fe.core": {}
+        "sap.fe.core": {},
+        "sap.fe.templates": {}
       }
     },
     "contentDensities": {
@@ -97,6 +98,11 @@
           "name": "TherapistsSetMain",
           "pattern": ":?query:",
           "target": "TherapistsSetMain"
+        },
+        {
+          "name": "TherapistsSetObjectPage",
+          "pattern": "TherapistsSet({TherapistsSetKey}):?query:",
+          "target": "TherapistsSetObjectPage"
         }
       ],
       "targets": {
@@ -106,9 +112,26 @@
           "name": "sap.fe.core.fpm",
           "options": {
             "settings": {
-              "navigation": {},
+              "navigation": {
+                "TherapistsSet": {
+                  "detail": {
+                    "route": "TherapistsSetObjectPage"
+                  }
+                }
+              },
               "contextPath": "/TherapistsSet",
               "viewName": "santos.therapists.ext.view.Main"
+            }
+          }
+        },
+        "TherapistsSetObjectPage": {
+          "type": "Component",
+          "id": "TherapistsSetObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/TherapistsSet"
             }
           }
         }
