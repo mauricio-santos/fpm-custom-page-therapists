@@ -1,6 +1,36 @@
-<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:macros="sap.fe.macros"
-    xmlns:html="http://www.w3.org/1999/xhtml" controllerName="santos.therapists.ext.view.Main">
-    <Page id="Main" title="{i18n>MainTitle}">
-        <content></content>
-    </Page>
+<mvc:View controllerName="santos.therapists.ext.view.Main"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:f="sap.f"
+    xmlns:macros="sap.fe.macros"
+>
+    <f:DynamicPage id="idDynamicPage">
+        
+        <f:title>
+            <f:DynamicPageTitle id="idDynamicPageTitle">
+                <f:heading>
+                    <Text id="idTherapistsFPMCustomPageText" text="{i18n>appTitle}"/>
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
+        
+        <f:header>
+            <f:DynamicPageHeader id="idDynamicPageHeader">
+                <f:content>
+                    <macros:FilterBar id="idFilterBar" metaPath="@com.sap.vocabularies.UI.v1.SelectionFields"/>
+                </f:content>
+            </f:DynamicPageHeader>
+        </f:header>
+
+        <f:content>
+            <macros:Table id="idTable" 
+                metaPath="@com.sap.vocabularies.UI.v1.LineItem"
+                filterBar="idFilterBar"
+                readOnly="true"
+            />
+        </f:content>
+
+    </f:DynamicPage>
+
 </mvc:View>
