@@ -15,7 +15,7 @@
                 "./webapp/*"
             ]
         },
-        "typeRoots": [
+        "types": [
             "./node_modules/@types",
             "./node_modules/@sapui5/types"
         ]
