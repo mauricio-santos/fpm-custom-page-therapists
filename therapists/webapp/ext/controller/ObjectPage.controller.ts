@@ -5,6 +5,11 @@ import Dialog from 'sap/m/Dialog';
 import Fragment from 'sap/ui/core/Fragment';
 import { DatePicker$ChangeEvent } from 'sap/m/DatePicker';
 import { ComboBox$ChangeEvent } from 'sap/m/ComboBox';
+import SinglePlanningCalendar from 'sap/m/SinglePlanningCalendar';
+import ODataListBinding from 'sap/ui/model/odata/v4/ODataListBinding';
+import MessageBox from 'sap/m/MessageBox';
+import ResourceModel from 'sap/ui/model/resource/ResourceModel';
+import ResourceBundle from 'sap/base/i18n/ResourceBundle';
 
 type Appointment = {
 	patient_ID: string;
@@ -134,5 +139,25 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 		date.setHours(hours, minutes, seconds);
 
 		return date.toISOString().replace(/\.\d{3}Z$/, "Z");;
+	}
+
+	public async onCreateButtonPress(): Promise<void> {
+		const view = this.base.getView();
+		const formModel = view.getModel("formModel") as JSONModel;
+		const appointmentData = formModel.getData() as Appointment;
+		const planningCalendar = this.base.getExtensionAPI().byId("fe::CustomSubSection::PlanningCalendar--idSinglePlanningCalendar") as SinglePlanningCalendar;
+		const bindList = planningCalendar.getBinding("appointments") as ODataListBinding;
+		const resourceBundle = (view.getModel("i18n") as ResourceModel).getResourceBundle() as ResourceBundle;
+
+		try {
+			await bindList.create(appointmentData).created();
+			MessageBox.success(resourceBundle.getText("appointmentCreatedSuccessfully") || "Appointment created successfully.");
+			this.dialog.close();
+			this.initAppointmentModel();
+		} catch (error) {
+			MessageBox.error(resourceBundle.getText("errorCreatingAppointment") || "Error on creating appointment:", {
+				details: error instanceof Error ? error.message : String(error)
+			});
+		}
 	}
 }
