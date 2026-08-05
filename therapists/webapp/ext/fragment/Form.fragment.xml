@@ -25,13 +25,15 @@
 
             <Label id="idBeginDateLabel" text="{i18n>beginDate}" labelFor="idBeginDateDatePicker" required="true"/>
             <DatePicker id="idBeginDateDatePicker" 
-                dateValue="{formModel>/beginDate}" 
+                dateValue="{formModel>/selectedDate}" 
                 displayFormat="yyyy-MM-dd"
+                change="onDatePickerChange"
             />
 
             <Label id="idEndDateLabel" text="{i18n>endDate}" labelFor="idEndDateDatePicker"/>
             <DatePicker id="idEndDateDatePicker" 
-                dateValue="{formModel>/endDate}" 
+                dateValue="{formModel>/selectedDate}"
+                displayFormat="yyyy-MM-dd"
                 enabled="false"
             />
 
@@ -40,6 +42,8 @@
                 items="{/VH_Blocks}" 
                 selectedKey="{formModel>/block_ID}" 
                 showSecondaryValues="true"
+                editable="{= !!${formModel>/endDate} }"
+                change="onVhBlocksComboBoxChange"
             >
                 <core:ListItem id="idBlockListItem" key="{ID}" text="{block}" additionalText="{timeText}"/>
             </ComboBox>

@@ -3,6 +3,8 @@ import ExtensionAPI from 'sap/fe/templates/ObjectPage/ExtensionAPI';
 import JSONModel from 'sap/ui/model/json/JSONModel';
 import Dialog from 'sap/m/Dialog';
 import Fragment from 'sap/ui/core/Fragment';
+import { DatePicker$ChangeEvent } from 'sap/m/DatePicker';
+import { ComboBox$ChangeEvent } from 'sap/m/ComboBox';
 
 type Appointment = {
 	patient_ID: string;
@@ -74,6 +76,63 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 	public onCancelButtonPress(): void {
 		if (this.dialog) {
 			this.dialog.close();
+			this.initAppointmentModel();
 		}
+	}
+
+	public onDatePickerChange(event: DatePicker$ChangeEvent): void {
+		const datePicker = event.getSource();
+		const selectedDate = datePicker.getDateValue();
+		const formModel = this.base.getView().getModel("formModel") as JSONModel;
+
+		if (!selectedDate) {
+			formModel.setProperty("/block_ID", "");
+			formModel.setProperty("/endDate", null);
+			formModel.setProperty("/beginTime", null);
+			formModel.setProperty("/endTime", null);
+			return;
+		}
+
+		formModel.setProperty("/selectedDate", selectedDate);
+
+		const formattedDate = [
+			selectedDate.getFullYear(),
+			String(selectedDate.getMonth() + 1).padStart(2, "0"),
+			String(selectedDate.getDate()).padStart(2, "0")
+		].join("-");
+
+		formModel.setProperty("/beginDate", formattedDate);
+		formModel.setProperty("/endDate", formattedDate);
+	}
+
+	public onVhBlocksComboBoxChange(event: ComboBox$ChangeEvent): void {
+		const item = event.getSource().getSelectedItem();
+		const formModel = this.base.getView()?.getModel("formModel") as JSONModel;
+
+		if (!item) {
+			formModel.setProperty("/beginTime", null);
+			formModel.setProperty("/endTime", null);
+			return;
+		}
+
+		const additionalText = item.getProperty("additionalText") as string;
+		const [beginTime, endTime] = additionalText.split("  - ");
+
+		formModel.setProperty("/beginTime", beginTime);
+		formModel.setProperty("/endTime", endTime);
+
+		const selectedDate = formModel.getProperty("/selectedDate") as Date;
+		formModel.setProperty("/startDate",this.combineDateAndTime(selectedDate, beginTime));
+		formModel.setProperty("/endDate2",this.combineDateAndTime(selectedDate, endTime));
+		delete formModel.getData().selectedDate; // not contained in the OData entity, so we remove it before sending the data to the backend
+	}
+
+	private combineDateAndTime(dateValue: Date, timeValue: string): string {
+		const [hours, minutes, seconds] = timeValue.split(":").map(Number);
+		const date = new Date(dateValue);
+		
+		date.setHours(hours, minutes, seconds);
+
+		return date.toISOString().replace(/\.\d{3}Z$/, "Z");;
 	}
 }
