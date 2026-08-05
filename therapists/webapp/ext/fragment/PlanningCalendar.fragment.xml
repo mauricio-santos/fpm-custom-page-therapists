@@ -18,6 +18,18 @@
 				<SinglePlanningCalendarMonthView id="idSinglePlanningCalendarMonthView" key="month" title="{i18n>month}"/>
 			</views>
 
+			<actions>
+			
+				<Button id="idNewAppointmentButton"
+					text="{i18n>newAppointment}" 
+					tooltip="{i18n>newAppointment}"
+					type="Emphasized"
+					visible="{= ${ui>/isEditable} }"
+					press=".extension.santos.therapists.ext.controller.ObjectPage.onNewAppointmentButtonPress"
+				/>
+
+			</actions>
+
 			<appointments>
 			
 				<unified:CalendarAppointment id="idCalendarAppointment"

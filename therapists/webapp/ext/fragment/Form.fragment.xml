@@ -1,0 +1,77 @@
+<core:FragmentDefinition xmlns:form="sap.ui.layout.form"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+>
+
+    <Dialog id="idFormDialog" title="{i18n>newAppointment}" draggable="true">
+
+        <form:SimpleForm id="idSimpleForm">
+
+            <Label id="idPatientLabel" text="{i18n>patient}" labelFor="idPatientsSetComboBox" required="true"/>
+            <ComboBox id="idPatientsSetComboBox" items="{/PatientsSet}" selectedKey="{formModel>/patient_ID}">
+                <core:Item id="idFullNameItem" key="{ID}" text="{fullName}"/>
+            </ComboBox>
+
+            <Label id="idTypeOfAppointmentLabel" text="{i18n>typeAppointment}" labelFor="idVhTypesAppointmentsComboBox" required="true"/>
+            <ComboBox id="idVhTypesAppointmentsComboBox" items="{/VH_TypesAppointments}" selectedKey="{formModel>/typeAppointment_ID}">
+                <core:Item id="idTypeItem" key="{ID}" text="{type}"/>
+            </ComboBox>
+
+            <Label id="idTitleLabel" text="{i18n>title}" labelFor="idTitleInput" required="true"/>
+            <Input id="idTitleInput" value="{formModel>/title}" />
+
+            <Label id="idDescriptionLabel" text="{i18n>description}" labelFor="idDescriptionInput"/>
+            <Input id="idDescriptionInput" value="{formModel>/description}" />
+
+            <Label id="idBeginDateLabel" text="{i18n>beginDate}" labelFor="idBeginDateDatePicker" required="true"/>
+            <DatePicker id="idBeginDateDatePicker" 
+                dateValue="{formModel>/beginDate}" 
+                displayFormat="yyyy-MM-dd"
+            />
+
+            <Label id="idEndDateLabel" text="{i18n>endDate}" labelFor="idEndDateDatePicker"/>
+            <DatePicker id="idEndDateDatePicker" 
+                dateValue="{formModel>/endDate}" 
+                enabled="false"
+            />
+
+            <Label id="idBlocksLabel" text="{i18n>blocks}" labelFor="idBlocksInput" required="true"/>
+            <ComboBox id="idVhBlocksComboBox" 
+                items="{/VH_Blocks}" 
+                selectedKey="{formModel>/block_ID}" 
+                showSecondaryValues="true"
+            >
+                <core:ListItem id="idBlockListItem" key="{ID}" text="{block}" additionalText="{timeText}"/>
+            </ComboBox>
+
+            <Label id="idBeginTimeLabel" text="{i18n>beginTime}" labelFor="idBeginTimeTimePicker"/>
+            <TimePicker id="idBeginTimeTimePicker" value="{formModel>/beginTime}" enabled="false"/>
+
+            <Label id="idEndTimeLabel" text="{i18n>endTime}" labelFor="idEndTimeTimePicker"/>
+            <TimePicker id="idEndTimeTimePicker" value="{formModel>/endTime}" enabled="false"/>
+
+        </form:SimpleForm>
+    
+        <beginButton>
+            <Button id="idCreateButton"
+                text="{i18n>create}" 
+                tooltip="{i18n>create}"
+                type="Emphasized"
+                width="6rem"
+                press="onCreateButtonPress"
+            />
+        </beginButton>
+
+        <endButton>
+            <Button id="idCancelButton"
+                text="{i18n>cancel}" 
+                tooltip="{i18n>cancel}"
+                type="Reject"
+                width="6rem"
+                press="onCancelButtonPress"
+            />
+        </endButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>
