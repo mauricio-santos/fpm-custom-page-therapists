@@ -15,6 +15,7 @@ import Popover from 'sap/m/Popover';
 import CalendarAppointment from 'sap/ui/unified/CalendarAppointment';
 import Context from 'sap/ui/model/odata/v4/Context';
 import ListItem from 'sap/ui/core/ListItem';
+import MessageToast from 'sap/m/MessageToast';
 
 type Appointment = {
 	patient_ID: string;
@@ -217,5 +218,23 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 
 		const domRef = appointment.getDomRef() as HTMLElement; // need to use the DOM reference of the appointment to open the popover at the correct position
 		popover.openBy(domRef);
+	}
+
+	/* ################### EDIT DIALOG ################### */
+
+	public async onEditButtonPopoverPress(): Promise<void> {
+		const popover = this.fragments["Details"] as Popover | undefined;
+		const context = popover?.getBindingContext("popover") as Context | undefined;
+		if (!context) return;
+
+		popover?.close();
+		this.editContext = context;
+		
+		const appointmentData = context.getObject() as Appointment;
+		this.getFormModel().setData(appointmentData);
+
+		const dialog = await this.loadFragment<Dialog>("Edit");
+		dialog.setTitle(this.getText("editAppointment"));
+		dialog.open();
 	}
 }

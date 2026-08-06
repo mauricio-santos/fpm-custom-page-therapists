@@ -42,11 +42,11 @@
 		</form:SimpleForm>
 
         <beginButton>
-            <Button id="idDeleteButton" text="{i18n>delete}" press="onDeleteButtonPopoverPress"/>
+            <Button id="idDeleteButton" text="{i18n>delete}" press="onDeleteButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
 		</beginButton>
 
 		<endButton>
-			<Button id="idEditButton" text="{i18n>edit}" type="Emphasized" press="onEditButtonPopoverPress"/>
+			<Button id="idEditButton" text="{i18n>edit}" type="Emphasized" press="onEditButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
 		</endButton>
 
 	</ResponsivePopover>
