@@ -9,7 +9,15 @@
 			startHour="6"
 			endHour="18"
 			scaleFactor="0.5"
-			appointments="{toAppointments}"
+			appointments="{
+				path:
+					'toAppointments',
+					parameters:{
+						$select:'title,description,startDate,endDate2,beginDate,endDate,beginTime,endTime',
+						$expand:'patient($select=fullName),typeAppointment($select=type),block($select=timeText)'
+					}
+				}"
+			appointmentSelect=".extension.santos.therapists.ext.controller.ObjectPage.onAppointmentSelect"
 		>
 		
 			<views>

@@ -1,0 +1,54 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form"
+>
+
+	<ResponsivePopover id="idResponsivePopover" title="{popover>title}" placement="Auto">
+		
+        <form:SimpleForm id="idPopoverSimpleForm">
+            <Label id="idPatientPopoverLabel" text="{i18n>patient}" labelFor="idFullNameText"/>
+            <Text id="idFullNameText" text="{popover>patient/fullName}"/>
+
+            <Label id="idTypeOfAppointmentPopoverLabel" text="{i18n>typeAppointment}" labelFor="idTypeAppointmentText"/>
+            <Text id="idTypeAppointmentText" text="{popover>typeAppointment/type}"/>
+
+            <Label id="idTitlePopoverLabel" text="{i18n>title}" labelFor="idTitleText"/>
+            <Text id="idTitleText" text="{popover>title}"/>
+
+            <Label id="idDescriptionPopoverLabel" text="{i18n>description}" labelFor="idDescriptionText"/>
+            <Text id="idDescriptionText" text="{popover>description}"/>
+
+            <Label id="idBeginDatePopoverLabel" text="{i18n>beginDate}" labelFor="idBeginDateText"/>
+            <Text id="idBeginDateText" 
+                text="{
+                    path: 'popover>beginDate', 
+                    type: 'sap.ui.model.odata.type.Date', 
+                    formatOptions: {pattern: 'yyyy-MM-dd'}
+                }"
+            />
+
+            <Label id="idEndDatePopoverLabel" text="{i18n>endDate}" labelFor="idEndDateText"/>
+            <Text id="idEndDateText" 
+                text="{
+                    path: 'popover>endDate', 
+                    type: 'sap.ui.model.odata.type.Date', 
+                    formatOptions: {pattern: 'yyyy-MM-dd'}
+                }"
+            />
+
+            <Label id="idBlocksPopoverLabel" text="{i18n>timeBlock}" labelFor="idTimeTextText"/>
+            <Text id="idTimeTextText" text="{popover>block/timeText}"/>
+		</form:SimpleForm>
+
+        <beginButton>
+            <Button id="idDeleteButton" text="Delete" press="onDeleteButtonPopoverPress"/>
+		</beginButton>
+
+		<endButton>
+			<Button id="idEditButton" text="Edit" type="Emphasized" press="onEditButtonPopoverPress"/>
+		</endButton>
+
+	</ResponsivePopover>
+
+</core:FragmentDefinition>

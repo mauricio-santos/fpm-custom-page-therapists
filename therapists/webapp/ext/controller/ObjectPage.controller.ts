@@ -2,14 +2,18 @@ import ControllerExtension from 'sap/ui/core/mvc/ControllerExtension';
 import ExtensionAPI from 'sap/fe/templates/ObjectPage/ExtensionAPI';
 import JSONModel from 'sap/ui/model/json/JSONModel';
 import Dialog from 'sap/m/Dialog';
+import Control from 'sap/ui/core/Control';
 import Fragment from 'sap/ui/core/Fragment';
 import { DatePicker$ChangeEvent } from 'sap/m/DatePicker';
 import { ComboBox$ChangeEvent } from 'sap/m/ComboBox';
-import SinglePlanningCalendar from 'sap/m/SinglePlanningCalendar';
+import SinglePlanningCalendar, { SinglePlanningCalendar$AppointmentSelectEvent } from 'sap/m/SinglePlanningCalendar';
 import ODataListBinding from 'sap/ui/model/odata/v4/ODataListBinding';
 import MessageBox from 'sap/m/MessageBox';
 import ResourceModel from 'sap/ui/model/resource/ResourceModel';
 import ResourceBundle from 'sap/base/i18n/ResourceBundle';
+import Popover from 'sap/m/Popover';
+import CalendarAppointment from 'sap/ui/unified/CalendarAppointment';
+import Context from 'sap/ui/model/odata/v4/Context';
 
 type Appointment = {
 	patient_ID: string;
@@ -44,6 +48,7 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 	}
 
 	private dialog: Dialog;
+	private popoverDetails: Popover;
 
 	private initAppointmentModel(): void {
 		const data: Appointment = {
@@ -159,5 +164,27 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 				details: error instanceof Error ? error.message : String(error)
 			});
 		}
+	}
+
+	public async onAppointmentSelect(event: SinglePlanningCalendar$AppointmentSelectEvent): Promise<void> {
+		const appointment = event.getParameter("appointment") as CalendarAppointment
+		if (!appointment) return;
+
+		const context = appointment.getBindingContext() as Context;
+		if (!context) return;
+
+		const view = this.base.getView();
+		this.popoverDetails ??= await Fragment.load({
+			id: view.getId(),
+			name: "santos.therapists.ext.fragment.Details",
+			controller: this,
+		}) as Popover;
+
+		view.addDependent(this.popoverDetails);
+		this.popoverDetails.setModel(view.getModel(), "popover");
+		this.popoverDetails.setBindingContext(context, "popover");
+
+		const domRef = appointment.getDomRef() as HTMLElement; // need to cast to HTMLElement to satisfy the type requirement for openBy
+		this.popoverDetails.openBy(domRef);
 	}
 }

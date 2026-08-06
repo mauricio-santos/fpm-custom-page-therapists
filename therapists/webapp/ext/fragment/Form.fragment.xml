@@ -1,6 +1,7 @@
-<core:FragmentDefinition xmlns:form="sap.ui.layout.form"
+<core:FragmentDefinition
 	xmlns="sap.m"
 	xmlns:core="sap.ui.core"
+	xmlns:form="sap.ui.layout.form"
 >
 
     <Dialog id="idFormDialog" title="{i18n>newAppointment}" draggable="true">
