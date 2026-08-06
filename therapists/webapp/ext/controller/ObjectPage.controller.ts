@@ -98,7 +98,16 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 
 	/** Combines an Edm.Date ("yyyy-MM-dd") with a time ("HH:mm:ss") into an Edm.DateTimeOffset string. */
 	private combineDateAndTime(date: string, time: string): string {
-		return `${date}T${time}Z`;
+		const localDate = new Date(`${date}T${time}`);
+		if (isNaN(localDate.getTime())) return "";
+		
+		const offsetMinutes = -localDate.getTimezoneOffset();
+		const sign = offsetMinutes >= 0 ? "+" : "-";
+		const absMinutes = Math.abs(offsetMinutes);
+		const offsetHours = String(Math.floor(absMinutes / 60)).padStart(2, "0");
+		const offsetRemainder = String(absMinutes % 60).padStart(2, "0");
+
+		return `${date}T${time}${sign}${offsetHours}:${offsetRemainder}`;
 	}
 
 	private formatDateToString(date: Date): string {
