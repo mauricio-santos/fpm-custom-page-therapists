@@ -13,7 +13,7 @@
 				path:
 					'toAppointments',
 					parameters:{
-						$select:'title,description,startDate,endDate2,beginDate,endDate,beginTime,endTime',
+						$select:'title,description,startDate,endDate2,beginDate,endDate,beginTime,endTime,patient_ID,typeAppointment_ID,block_ID',
 						$expand:'patient($select=fullName),typeAppointment($select=type),block($select=timeText)'
 					}
 				}"

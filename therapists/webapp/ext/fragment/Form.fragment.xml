@@ -26,14 +26,14 @@
 
             <Label id="idBeginDateLabel" text="{i18n>beginDate}" labelFor="idBeginDateDatePicker" required="true"/>
             <DatePicker id="idBeginDateDatePicker" 
-                dateValue="{formModel>/selectedDate}" 
+                value="{formModel>/beginDate}" 
                 displayFormat="yyyy-MM-dd"
                 change="onDatePickerChange"
             />
 
             <Label id="idEndDateLabel" text="{i18n>endDate}" labelFor="idEndDateDatePicker"/>
             <DatePicker id="idEndDateDatePicker" 
-                dateValue="{formModel>/selectedDate}"
+                value="{formModel>/endDate}"
                 displayFormat="yyyy-MM-dd"
                 enabled="false"
             />

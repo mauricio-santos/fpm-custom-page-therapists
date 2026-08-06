@@ -14,6 +14,7 @@ import ResourceBundle from 'sap/base/i18n/ResourceBundle';
 import Popover from 'sap/m/Popover';
 import CalendarAppointment from 'sap/ui/unified/CalendarAppointment';
 import Context from 'sap/ui/model/odata/v4/Context';
+import ListItem from 'sap/ui/core/ListItem';
 
 type Appointment = {
 	patient_ID: string;
@@ -21,13 +22,16 @@ type Appointment = {
 	block_ID: string;
 	title: string;
 	description: string;
-	beginDate: Date | null;
-	endDate: Date | null;
+	beginDate: string;
+	endDate: string;
 	startDate: string;
 	endDate2: string;
 	beginTime: string;
 	endTime: string;
 }
+
+const FRAGMENT_NAMESPACE = "santos.therapists.ext.fragment";
+const CALENDAR_ID = "fe::CustomSubSection::PlanningCalendar--idSinglePlanningCalendar";
 
 /**
  * @namespace santos.therapists.ext.controller
@@ -41,150 +45,168 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 		 * @memberOf santos.therapists.ext.controller.ObjectPage
 		 */
 		onInit(this: ObjectPage) {
-			// you can access the Fiori elements extensionAPI via this.base.getExtensionAPI
-			const model = this.base.getExtensionAPI().getModel();
-			this.initAppointmentModel();
+			this.base.getView().setModel(new JSONModel(this.createEmptyAppointment()), "formModel");
 		}
 	}
 
-	private dialog: Dialog;
-	private popoverDetails: Popover;
+	private readonly fragments: Partial<Record<string, Control>> = {};
+	private editContext: Context | null = null;
 
-	private initAppointmentModel(): void {
-		const data: Appointment = {
+	/* ################### HELPERS ################### */
+
+	private createEmptyAppointment(): Appointment {
+		return {
 			patient_ID: "",
 			typeAppointment_ID: "",
 			block_ID: "",
 			title: "",
 			description: "",
-			beginDate: null,
-			endDate: null,
+			beginDate: "",
+			endDate: "",
 			startDate: "",
 			endDate2: "",
 			beginTime: "",
 			endTime: ""
 		};
-
-		this.base.getView().setModel(new JSONModel(data), "formModel");
 	}
 
-	public async onNewAppointmentButtonPress(): Promise<void> {
+	private getFormModel(): JSONModel {
+		return this.base.getView().getModel("formModel") as JSONModel;
+	}
+
+	private getText(key: string): string {
+		const bundle = (this.base.getView().getModel("i18n") as ResourceModel).getResourceBundle() as ResourceBundle;
+		return bundle.getText(key) ?? key;
+	}
+
+	private resetForm(): void {
+		this.getFormModel().setData(this.createEmptyAppointment());
+	}
+
+	private async loadFragment<T extends Control>(name: string): Promise<T> {
 		const view = this.base.getView();
 
-		this.dialog ??= await Fragment.load({
+		this.fragments[name] ??= (await Fragment.load({
 			id: view.getId(),
-			name: "santos.therapists.ext.fragment.Form",
-			controller: this,
-		}) as Dialog;
+			name: `${FRAGMENT_NAMESPACE}.${name}`,
+			controller: this
+		})) as Control;
 
-		view.addDependent(this.dialog);
+		view.addDependent(this.fragments[name]);
+		return this.fragments[name] as T;
+	}
 
-		// this.dialog.bindElement({ path: "/", model: "" });
-		this.dialog.open();
+	/** Combines an Edm.Date ("yyyy-MM-dd") with a time ("HH:mm:ss") into an Edm.DateTimeOffset string. */
+	private combineDateAndTime(date: string, time: string): string {
+		return `${date}T${time}Z`;
+	}
+
+	private formatDateToString(date: Date): string {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0");
+		const day = String(date.getDate()).padStart(2, "0");
+
+		return `${year}-${month}-${day}`;
+	}
+
+	/** Recomputes the calendar slot (startDate/endDate2) whenever the date or the time block changes. */
+	private updateCalendarSlot(): void {
+		const formModel = this.getFormModel();
+		const beginDate = formModel.getProperty("/beginDate") as string;
+		const beginTime = formModel.getProperty("/beginTime") as string;
+		const endTime = formModel.getProperty("/endTime") as string;
+
+		if (!beginDate || !beginTime || !endTime) {
+			formModel.setProperty("/startDate", "");
+			formModel.setProperty("/endDate2", "");
+			return;
+		}
+
+		formModel.setProperty("/startDate", this.combineDateAndTime(beginDate, beginTime));
+		formModel.setProperty("/endDate2", this.combineDateAndTime(beginDate, endTime));
+	}
+
+	/* ################### CREATE AND CANCEL NEW APPOINTMENT ################### */
+
+	public async onNewAppointmentButtonPress(): Promise<void> {
+		this.resetForm();
+		const dialog = await this.loadFragment<Dialog>("Form");
+		dialog.open();
 	}
 
 	public onCancelButtonPress(): void {
-		if (this.dialog) {
-			this.dialog.close();
-			this.initAppointmentModel();
-		}
-	}
-
-	public onDatePickerChange(event: DatePicker$ChangeEvent): void {
-		const datePicker = event.getSource();
-		const selectedDate = datePicker.getDateValue();
-		const formModel = this.base.getView().getModel("formModel") as JSONModel;
-
-		if (!selectedDate) {
-			formModel.setProperty("/block_ID", "");
-			formModel.setProperty("/endDate", null);
-			formModel.setProperty("/beginTime", null);
-			formModel.setProperty("/endTime", null);
-			return;
-		}
-
-		formModel.setProperty("/selectedDate", selectedDate);
-
-		const formattedDate = [
-			selectedDate.getFullYear(),
-			String(selectedDate.getMonth() + 1).padStart(2, "0"),
-			String(selectedDate.getDate()).padStart(2, "0")
-		].join("-");
-
-		formModel.setProperty("/beginDate", formattedDate);
-		formModel.setProperty("/endDate", formattedDate);
-	}
-
-	public onVhBlocksComboBoxChange(event: ComboBox$ChangeEvent): void {
-		const item = event.getSource().getSelectedItem();
-		const formModel = this.base.getView()?.getModel("formModel") as JSONModel;
-
-		if (!item) {
-			formModel.setProperty("/beginTime", null);
-			formModel.setProperty("/endTime", null);
-			return;
-		}
-
-		const additionalText = item.getProperty("additionalText") as string;
-		const [beginTime, endTime] = additionalText.split("  - ");
-
-		formModel.setProperty("/beginTime", beginTime);
-		formModel.setProperty("/endTime", endTime);
-
-		const selectedDate = formModel.getProperty("/selectedDate") as Date;
-		formModel.setProperty("/startDate",this.combineDateAndTime(selectedDate, beginTime));
-		formModel.setProperty("/endDate2",this.combineDateAndTime(selectedDate, endTime));
-		delete formModel.getData().selectedDate; // not contained in the OData entity, so we remove it before sending the data to the backend
-	}
-
-	private combineDateAndTime(dateValue: Date, timeValue: string): string {
-		const [hours, minutes, seconds] = timeValue.split(":").map(Number);
-		const date = new Date(dateValue);
-		
-		date.setHours(hours, minutes, seconds);
-
-		return date.toISOString().replace(/\.\d{3}Z$/, "Z");;
+		(this.fragments["Form"] as Dialog)?.close();
+		this.resetForm();
 	}
 
 	public async onCreateButtonPress(): Promise<void> {
-		const view = this.base.getView();
-		const formModel = view.getModel("formModel") as JSONModel;
-		const appointmentData = formModel.getData() as Appointment;
-		const planningCalendar = this.base.getExtensionAPI().byId("fe::CustomSubSection::PlanningCalendar--idSinglePlanningCalendar") as SinglePlanningCalendar;
-		const bindList = planningCalendar.getBinding("appointments") as ODataListBinding;
-		const resourceBundle = (view.getModel("i18n") as ResourceModel).getResourceBundle() as ResourceBundle;
+		const appointment = this.getFormModel().getData() as Appointment;
+		const calendar = this.base.getExtensionAPI().byId(CALENDAR_ID) as SinglePlanningCalendar;
+		const listBinding = calendar.getBinding("appointments") as ODataListBinding;
 
 		try {
-			await bindList.create(appointmentData).created();
-			MessageBox.success(resourceBundle.getText("appointmentCreatedSuccessfully") || "Appointment created successfully.");
-			this.dialog.close();
-			this.initAppointmentModel();
+			await listBinding.create(appointment).created();
+			MessageBox.success(this.getText("appointmentCreatedSuccessfully"));
+			(this.fragments["Form"] as Dialog)?.close();
+			this.resetForm();
 		} catch (error) {
-			MessageBox.error(resourceBundle.getText("errorCreatingAppointment") || "Error on creating appointment:", {
+			MessageBox.error(this.getText("errorCreatingAppointment"), {
 				details: error instanceof Error ? error.message : String(error)
 			});
 		}
 	}
 
-	public async onAppointmentSelect(event: SinglePlanningCalendar$AppointmentSelectEvent): Promise<void> {
-		const appointment = event.getParameter("appointment") as CalendarAppointment
-		if (!appointment) return;
+	/* ################### DATE PICKER & VH BLOCKS COMBO BOX EVENT ################### */
 
-		const context = appointment.getBindingContext() as Context;
+	public onDatePickerChange(event: DatePicker$ChangeEvent): void {
+		const selectedDate = event.getSource().getDateValue();
+		const formModel = this.getFormModel();
+		const beginDate = selectedDate ? this.formatDateToString(selectedDate) : "";
+
+		if (!beginDate) {
+			formModel.setProperty("/block_ID", "");
+			formModel.setProperty("/beginTime", "");
+			formModel.setProperty("/endTime", "");
+			return;
+		}
+
+		formModel.setProperty("/beginDate", beginDate);
+		formModel.setProperty("/endDate", beginDate);
+
+		this.updateCalendarSlot();
+	}
+
+	public onVhBlocksComboBoxChange(event: ComboBox$ChangeEvent): void {
+		const selectedItem = event.getSource().getSelectedItem() as ListItem | null;
+		const formModel = this.getFormModel();
+
+		if (!selectedItem) {
+			formModel.setProperty("/beginTime", "");
+			formModel.setProperty("/endTime", "");
+			this.updateCalendarSlot();
+			return;
+		}
+
+		const [beginTime, endTime] = selectedItem.getAdditionalText().split("  - ");
+		formModel.setProperty("/beginTime", beginTime);
+		formModel.setProperty("/endTime", endTime);
+
+		this.updateCalendarSlot();
+	}
+
+
+	/* ################### DETAILS POPOVER ################### */
+
+	public async onAppointmentSelect(event: SinglePlanningCalendar$AppointmentSelectEvent): Promise<void> {
+		const appointment = event.getParameter("appointment") as CalendarAppointment;
+		const context = appointment?.getBindingContext() as Context | undefined;
 		if (!context) return;
 
-		const view = this.base.getView();
-		this.popoverDetails ??= await Fragment.load({
-			id: view.getId(),
-			name: "santos.therapists.ext.fragment.Details",
-			controller: this,
-		}) as Popover;
+		const popover = await this.loadFragment<Popover>("Details");
+		popover.setModel(this.base.getView().getModel(), "popover");
+		popover.setBindingContext(context, "popover");
 
-		view.addDependent(this.popoverDetails);
-		this.popoverDetails.setModel(view.getModel(), "popover");
-		this.popoverDetails.setBindingContext(context, "popover");
-
-		const domRef = appointment.getDomRef() as HTMLElement; // need to cast to HTMLElement to satisfy the type requirement for openBy
-		this.popoverDetails.openBy(domRef);
+		const domRef = appointment.getDomRef() as HTMLElement; // need to use the DOM reference of the appointment to open the popover at the correct position
+		popover.openBy(domRef);
 	}
 }

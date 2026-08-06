@@ -37,16 +37,16 @@
                 }"
             />
 
-            <Label id="idBlocksPopoverLabel" text="{i18n>timeBlock}" labelFor="idTimeTextText"/>
+            <Label id="idTimeBlockLabel" text="{i18n>timeBlock}" labelFor="idTimeTextText"/>
             <Text id="idTimeTextText" text="{popover>block/timeText}"/>
 		</form:SimpleForm>
 
         <beginButton>
-            <Button id="idDeleteButton" text="Delete" press="onDeleteButtonPopoverPress"/>
+            <Button id="idDeleteButton" text="{i18n>delete}" press="onDeleteButtonPopoverPress"/>
 		</beginButton>
 
 		<endButton>
-			<Button id="idEditButton" text="Edit" type="Emphasized" press="onEditButtonPopoverPress"/>
+			<Button id="idEditButton" text="{i18n>edit}" type="Emphasized" press="onEditButtonPopoverPress"/>
 		</endButton>
 
 	</ResponsivePopover>
