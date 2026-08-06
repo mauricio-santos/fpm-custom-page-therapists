@@ -237,4 +237,42 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 		dialog.setTitle(this.getText("editAppointment"));
 		dialog.open();
 	}
+
+	/* ################### SAVE/CANCEL DIALOG ################### */
+
+	public async onSaveButtonPress(): Promise<void> {
+		const context = this.editContext;
+		if (!context) return;
+
+		const appointment = this.getFormModel().getData() as Appointment;
+
+		try {
+			const appointmentProperties = Object.keys(this.createEmptyAppointment()) as (keyof Appointment)[];
+			await Promise.all(
+				appointmentProperties.map((propertyName) => context.setProperty(propertyName, appointment[propertyName]))
+			);
+
+			// refresh navigation properties so the popover (e.g. block/timeText) reflects the new values immediately
+			await context.requestSideEffects([
+				{ $NavigationPropertyPath: "patient" },
+				{ $NavigationPropertyPath: "typeAppointment" },
+				{ $NavigationPropertyPath: "block" }
+			]);
+
+			(this.fragments["Edit"] as Dialog)?.close();
+			this.editContext = null;
+			this.resetForm();
+			MessageToast.show(this.getText("appointmentUpdatedSuccessfully"));
+		} catch (error) {
+			MessageBox.error(this.getText("errorUpdatingAppointment"), {
+				details: error instanceof Error ? error.message : String(error)
+			});
+		}
+	}
+
+	public onCancelEditButtonPress(): void {
+		(this.fragments["Edit"] as Dialog)?.close();
+		this.editContext = null;
+		this.resetForm();
+	}
 }
