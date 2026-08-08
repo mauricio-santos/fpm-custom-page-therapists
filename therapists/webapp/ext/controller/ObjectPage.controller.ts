@@ -6,7 +6,7 @@ import Control from 'sap/ui/core/Control';
 import Fragment from 'sap/ui/core/Fragment';
 import { DatePicker$ChangeEvent } from 'sap/m/DatePicker';
 import { ComboBox$ChangeEvent } from 'sap/m/ComboBox';
-import SinglePlanningCalendar, { SinglePlanningCalendar$AppointmentDropEvent, SinglePlanningCalendar$AppointmentSelectEvent } from 'sap/m/SinglePlanningCalendar';
+import SinglePlanningCalendar, { SinglePlanningCalendar$AppointmentDropEvent, SinglePlanningCalendar$AppointmentSelectEvent, SinglePlanningCalendar$MoreLinkPressEvent } from 'sap/m/SinglePlanningCalendar';
 import ODataListBinding from 'sap/ui/model/odata/v4/ODataListBinding';
 import ODataModel from 'sap/ui/model/odata/v4/ODataModel';
 import Filter from 'sap/ui/model/Filter';
@@ -366,5 +366,16 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 		}
 
 		(this.fragments["Details"] as Popover)?.close();
+	}
+
+	public onSinglePlanningCalendarMoreLinkPress(event: SinglePlanningCalendar$MoreLinkPressEvent): void {
+		const calendar = event.getSource();
+		const date = event.getParameter("date") as Date;
+
+		// Month view truncates the appointment list, so switch to the day view of the clicked date to show them all.
+		const dayView = calendar.getViews().find((view) => view.getKey() === "day");
+		if (dayView) calendar.setSelectedView(dayView);
+
+		calendar.setStartDate(date);
 	}
 }
