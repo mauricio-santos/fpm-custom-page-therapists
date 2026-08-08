@@ -18,6 +18,8 @@
 					}
 				}"
 			appointmentSelect=".extension.santos.therapists.ext.controller.ObjectPage.onAppointmentSelect"
+			enableAppointmentsDragAndDrop="{= ${ui>/isEditable} }"
+			appointmentDrop=".extension.santos.therapists.ext.controller.ObjectPage.onAppointmentDrop"
 		>
 		
 			<views>

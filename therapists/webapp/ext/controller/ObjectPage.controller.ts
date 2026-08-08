@@ -6,8 +6,11 @@ import Control from 'sap/ui/core/Control';
 import Fragment from 'sap/ui/core/Fragment';
 import { DatePicker$ChangeEvent } from 'sap/m/DatePicker';
 import { ComboBox$ChangeEvent } from 'sap/m/ComboBox';
-import SinglePlanningCalendar, { SinglePlanningCalendar$AppointmentSelectEvent } from 'sap/m/SinglePlanningCalendar';
+import SinglePlanningCalendar, { SinglePlanningCalendar$AppointmentDropEvent, SinglePlanningCalendar$AppointmentSelectEvent } from 'sap/m/SinglePlanningCalendar';
 import ODataListBinding from 'sap/ui/model/odata/v4/ODataListBinding';
+import ODataModel from 'sap/ui/model/odata/v4/ODataModel';
+import Filter from 'sap/ui/model/Filter';
+import FilterOperator from 'sap/ui/model/FilterOperator';
 import MessageBox from 'sap/m/MessageBox';
 import ResourceModel from 'sap/ui/model/resource/ResourceModel';
 import ResourceBundle from 'sap/base/i18n/ResourceBundle';
@@ -16,7 +19,6 @@ import CalendarAppointment from 'sap/ui/unified/CalendarAppointment';
 import Context from 'sap/ui/model/odata/v4/Context';
 import ListItem from 'sap/ui/core/ListItem';
 import MessageToast from 'sap/m/MessageToast';
-import Router from 'sap/ui/core/routing/Router';
 import { Button$PressEvent } from 'sap/ui/commons/Button';
 
 type Appointment = {
@@ -119,6 +121,21 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 		const day = String(date.getDate()).padStart(2, "0");
 
 		return `${year}-${month}-${day}`;
+	}
+
+	/** Finds the VH_Blocks entry whose time range contains the given time ("HH:mm:ss") and returns its ID. */
+	private async findBlockIdByTime(time: string): Promise<string | undefined> {
+		const model = this.base.getView().getModel() as ODataModel;
+		const binding = model.bindList("/VH_Blocks", undefined, undefined, new Filter({
+			filters: [
+				new Filter("beginTime", FilterOperator.LE, time),
+				new Filter("endTime", FilterOperator.GT, time)
+			],
+			and: true
+		}));
+
+		const [block] = await binding.requestContexts(0, 1);
+		return block?.getProperty("ID") as string | undefined;
 	}
 
 	/** Recomputes the calendar slot (startDate/endDate2) whenever the date or the time block changes. */
@@ -295,5 +312,44 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 			boolean1: IsActiveEntity,
 			boolean2: IsActiveEntity
 		});
+	}
+
+	public async onAppointmentDrop(event: SinglePlanningCalendar$AppointmentDropEvent): Promise<void> {
+		const appointment = event.getParameter("appointment") as CalendarAppointment;
+		const context = appointment?.getBindingContext() as Context | undefined;
+		if (!context) return;
+
+		const newStartDateTime = event.getParameter("startDate") as Date;
+		const newEndDateTime = event.getParameter("endDate") as Date;
+		const beginDate = this.formatDateToString(newStartDateTime);
+
+		// Month view has no time granularity, so keep the appointment's original time values.
+		const calendar = event.getSource() as SinglePlanningCalendar;
+		const isMonthView = calendar?.getSelectedView()?.includes("Month") as boolean;
+		const beginTime = isMonthView
+			? context.getProperty("beginTime") as string
+			: newStartDateTime.toTimeString().split(" ")[0];
+		const endTime = isMonthView
+			? context.getProperty("endTime") as string
+			: newEndDateTime.toTimeString().split(" ")[0];
+
+		const blockId = await this.findBlockIdByTime(beginTime);
+
+		context.setProperty("beginDate", beginDate);
+		context.setProperty("endDate", beginDate);
+		context.setProperty("beginTime", beginTime);
+		context.setProperty("endTime", endTime);
+
+		// Update the calendar slot fields the appointment is bound to, so the binding refreshes on its own.
+		context.setProperty("startDate", this.combineDateAndTime(beginDate, beginTime));
+		context.setProperty("endDate2", this.combineDateAndTime(beginDate, endTime));
+
+		if (blockId) {
+			context.setProperty("block_ID", blockId);
+			// Refresh the block navigation property so the popover (block/timeText) reflects the new block immediately.
+			await context.requestSideEffects([{ $NavigationPropertyPath: "block" }]);
+		}
+
+		(this.fragments["Details"] as Popover)?.close();
 	}
 }

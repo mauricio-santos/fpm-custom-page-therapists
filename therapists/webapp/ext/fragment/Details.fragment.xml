@@ -41,14 +41,14 @@
             <Text id="idTimeTextText" text="{popover>block/timeText}"/>
 		</form:SimpleForm>
 
-        <footer>
-			<OverflowToolbar id="idPopoverFooterToolbar">
-				<Button id="idShowMoreLink" text="{i18n>showObjectPage}" press="onShowMorePress"/>
-				<ToolbarSpacer id="idPopoverFooterSpacer"/>
-				<Button id="idDeleteButton" text="{i18n>delete}" press="onDeleteButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
-				<Button id="idEditButton" text="{i18n>edit}" type="Emphasized" press="onEditButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
-			</OverflowToolbar>
-		</footer>
+
+        <OverflowToolbar id="idOverflowToolbar">
+            <Button id="idShowObjectPageButton" text="{i18n>showObjectPage}" press="onShowMorePress"/>
+            <ToolbarSpacer id="idToolbarSpacer"/>
+            <Button id="idDeleteButton" text="{i18n>delete}" press="onDeleteButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
+            <Button id="idEditButton" text="{i18n>edit}" type="Emphasized" press="onEditButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
+        </OverflowToolbar>
+
 
 	</ResponsivePopover>
 
