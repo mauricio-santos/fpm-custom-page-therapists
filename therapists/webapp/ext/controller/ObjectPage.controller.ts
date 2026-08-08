@@ -16,6 +16,8 @@ import CalendarAppointment from 'sap/ui/unified/CalendarAppointment';
 import Context from 'sap/ui/model/odata/v4/Context';
 import ListItem from 'sap/ui/core/ListItem';
 import MessageToast from 'sap/m/MessageToast';
+import Router from 'sap/ui/core/routing/Router';
+import { Button$PressEvent } from 'sap/ui/commons/Button';
 
 type Appointment = {
 	patient_ID: string;
@@ -274,5 +276,24 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 		(this.fragments["Edit"] as Dialog)?.close();
 		this.editContext = null;
 		this.resetForm();
+	}
+
+	public onShowMorePress(event: Button$PressEvent): void {
+		const source = event.getSource();
+		const context = source.getBindingContext("popover") as Context;
+		if (!context) return;
+
+		const appointmentKey = context.getProperty("ID");
+		const IsActiveEntity = context.getProperty("IsActiveEntity");
+		const therapistKey = this.base.getView()?.getBindingContext()?.getProperty("ID");
+
+		(this.fragments["Details"] as Popover)?.close();
+
+		this.base.getExtensionAPI().getRouting().navigateToRoute("AppointmentsSetAppointmentsPage", {
+			TherapistsSetKey: therapistKey,
+			toAppointmentsKey: appointmentKey,
+			boolean1: IsActiveEntity,
+			boolean2: IsActiveEntity
+		});
 	}
 }

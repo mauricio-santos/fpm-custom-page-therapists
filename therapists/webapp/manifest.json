@@ -103,6 +103,11 @@
           "name": "TherapistsSetObjectPage",
           "pattern": "TherapistsSet({TherapistsSetKey}):?query:",
           "target": "TherapistsSetObjectPage"
+        },
+        {
+          "name": "AppointmentsSetAppointmentsPage",
+          "pattern": "TherapistsSet(ID={TherapistsSetKey},IsActiveEntity={boolean1})/toAppointments(ID={toAppointmentsKey},IsActiveEntity={boolean2}):?query:",
+          "target": "AppointmentsSetAppointmentsPage"
         }
       ],
       "targets": {
@@ -130,7 +135,13 @@
           "name": "sap.fe.templates.ObjectPage",
           "options": {
             "settings": {
-              "navigation": {},
+              "navigation": {
+                "toAppointments": {
+                  "detail": {
+                    "route": "AppointmentsSetAppointmentsPage"
+                  }
+                }
+              },
               "contextPath": "/TherapistsSet",
               "content": {
                 "body": {
@@ -146,6 +157,18 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "AppointmentsSetAppointmentsPage": {
+          "type": "Component",
+          "id": "AppointmentsSetAppointmentsPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/TherapistsSet/toAppointments",
+              "viewName": "santos.therapists.ext.view.Appointments"
             }
           }
         }

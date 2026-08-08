@@ -1,4 +1,4 @@
-<core:FragmentDefinition
+<core:FragmentDefinition xmlns:uxap="sap.uxap"
 	xmlns="sap.m"
 	xmlns:core="sap.ui.core"
     xmlns:form="sap.ui.layout.form"
@@ -41,13 +41,14 @@
             <Text id="idTimeTextText" text="{popover>block/timeText}"/>
 		</form:SimpleForm>
 
-        <beginButton>
-            <Button id="idDeleteButton" text="{i18n>delete}" press="onDeleteButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
-		</beginButton>
-
-		<endButton>
-			<Button id="idEditButton" text="{i18n>edit}" type="Emphasized" press="onEditButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
-		</endButton>
+        <footer>
+			<OverflowToolbar id="idPopoverFooterToolbar">
+				<Button id="idShowMoreLink" text="{i18n>showObjectPage}" press="onShowMorePress"/>
+				<ToolbarSpacer id="idPopoverFooterSpacer"/>
+				<Button id="idDeleteButton" text="{i18n>delete}" press="onDeleteButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
+				<Button id="idEditButton" text="{i18n>edit}" type="Emphasized" press="onEditButtonPopoverPress" visible="{= ${ui>/isEditable} }"/>
+			</OverflowToolbar>
+		</footer>
 
 	</ResponsivePopover>
 
