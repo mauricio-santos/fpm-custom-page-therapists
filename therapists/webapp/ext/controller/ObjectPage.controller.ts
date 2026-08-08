@@ -20,6 +20,7 @@ import Context from 'sap/ui/model/odata/v4/Context';
 import ListItem from 'sap/ui/core/ListItem';
 import MessageToast from 'sap/m/MessageToast';
 import { Button$PressEvent } from 'sap/ui/commons/Button';
+import DateFormat from 'sap/ui/core/format/DateFormat';
 
 type Appointment = {
 	patient_ID: string;
@@ -116,11 +117,7 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 	}
 
 	private formatDateToString(date: Date): string {
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, "0");
-		const day = String(date.getDate()).padStart(2, "0");
-
-		return `${year}-${month}-${day}`;
+		return DateFormat.getDateInstance({ pattern: "yyyy-MM-dd" }).format(date);
 	}
 
 	/** Finds the VH_Blocks entry whose time range contains the given time ("HH:mm:ss") and returns its ID. */
