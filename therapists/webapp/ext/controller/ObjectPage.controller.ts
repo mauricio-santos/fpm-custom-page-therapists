@@ -106,14 +106,9 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 	private combineDateAndTime(date: string, time: string): string {
 		const localDate = new Date(`${date}T${time}`);
 		if (isNaN(localDate.getTime())) return "";
-		
-		const offsetMinutes = -localDate.getTimezoneOffset();
-		const sign = offsetMinutes >= 0 ? "+" : "-";
-		const absMinutes = Math.abs(offsetMinutes);
-		const offsetHours = String(Math.floor(absMinutes / 60)).padStart(2, "0");
-		const offsetRemainder = String(absMinutes % 60).padStart(2, "0");
 
-		return `${date}T${time}${sign}${offsetHours}:${offsetRemainder}`;
+		// XXX is the timezone offset in the format ±hh:mm, which is required for Edm.DateTimeOffset.
+		return DateFormat.getDateTimeInstance({ pattern: "yyyy-MM-dd'T'HH:mm:ssXXX" }).format(localDate);
 	}
 
 	private formatDateToString(date: Date): string {
