@@ -46,6 +46,10 @@
 					description="{description}"
 					startDate="{startDate}"
 					endDate="{endDate2}"
+					type="{
+						path: 'status_code', 
+						formatter: 'handler.formatAppointmentType'
+					}"
 				/>
 
 			</appointments>
