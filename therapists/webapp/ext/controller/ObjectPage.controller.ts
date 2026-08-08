@@ -231,6 +231,29 @@ export default class ObjectPage extends ControllerExtension<ExtensionAPI> {
 		popover.openBy(domRef);
 	}
 
+	public onDeleteButtonPopoverPress(): void {
+		const popover = this.fragments["Details"] as Popover | undefined;
+		const context = popover?.getBindingContext("popover") as Context | undefined;
+		if (!context) return;
+
+		MessageBox.confirm(this.getText("confirmDeleteAppointment"), {
+			onClose: async (action) => {
+				if (action === MessageBox.Action.OK) {
+					try {
+						await context.delete();
+						MessageToast.show(this.getText("appointmentDeletedSuccessfully"));
+					} catch (error) {
+						MessageBox.error(this.getText("errorDeletingAppointment"), {
+							details: error instanceof Error ? error.message : String(error)
+						});
+					}
+				}
+			}
+		});
+
+		popover?.close();
+	}
+
 	/* ################### EDIT DIALOG ################### */
 
 	public async onEditButtonPopoverPress(): Promise<void> {
