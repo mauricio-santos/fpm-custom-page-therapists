@@ -1,7 +1,7 @@
-<core:FragmentDefinition xmlns:unified="sap.ui.unified" 
+<core:FragmentDefinition
 	xmlns="sap.m" 
 	xmlns:core="sap.ui.core" 
-	xmlns:macros="sap.fe.macros"
+	xmlns:unified="sap.ui.unified" 
 >
 	<VBox id="idFragmentCalendarVBox" core:require="{ handler: 'santos/therapists/ext/fragment/PlanningCalendar'}">
 		
