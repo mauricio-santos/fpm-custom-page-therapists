@@ -14,6 +14,22 @@ modules:
       forwardAuthToken: false
       name: ui5
       url: https://ui5.sap.com
+
+  properties:
+      # Allow the application to be embedded in SAP Build Work Zone.
+      # Disable the default X-Frame-Options: SAMEORIGIN header and restrict
+      # iframe embedding via CSP to the application itself and the Work Zone domain.
+      # SAP Build Work Zone (Launchpad) URL allowed to embed this application in an iframe.
+      # Work Zone URL: https://d94ba6c0trial.launchpad.cfapps.us10.hana.ondemand.com
+      # Console error: Refused to display 'https://d94ba6c0trial-dev-fpm-custom-page-therapists-approuter.cfapps.us10-003.hana.ondemand.com/' in a frame because it set 'X-Frame-Options' to 'sameorigin'.
+      SEND_XFRAMEOPTIONS: false
+      httpHeaders: >
+        [
+          {
+            "Content-Security-Policy": "frame-ancestors 'self' https://d94ba6c0trial.launchpad.cfapps.us10.hana.ondemand.com"
+          }
+        ]
+
   parameters:
     disk-quota: 256M
     memory: 256M
